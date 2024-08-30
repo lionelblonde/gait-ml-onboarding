@@ -44,7 +44,7 @@ iterations, in this $n+1$ iteration, we formulate is as
 \emph{learning locomotion controllers}.
 
 The task of learning how a control policy that knows how to walk \textit{when embodied physically
-in the real world} is extremely challenging for a multiplicity of reasons
+in the real world} is challenging for a multiplicity of reasons
 \cite{Radosavovic2024-dm, Caluwaerts2023-ko, Yang2023-jr, Kaufmann2023-yc, Smith2022-sm}.
 
 We do not aim for embodied deployment.
@@ -110,17 +110,30 @@ an action space (the decisions the agent might make), a dynamics model that gove
 the world in which the agent interacts, and a reward process. MDPs are used in the formalism of
 problems defined under the reward hypothesis, which sees each task as the maximization of a signal
 called reward \cite{Bowling2022-li, Silver2021-uj}. Under this umbrella of problem formulations
-lies \emph{reinforcement learning}, \textit{abbrv.}~RL \cite{Sutton1998-ow}. It is used to
+lies reinforcement learning, \textit{abbrv.}~RL \cite{Sutton1998-ow}. It is used to
 formalize problems of sequential decision making under uncertainty, and fits the problem of
 locomotion control well if we see the gait problem as consisting in making a series of reactive
 decisions consecutively in the interactive environment that is our simulator. We see immediately
 that the RL agent is limited by the speed at which the simulator responds, which is why this
 aspect is so critical. The choice of simulator will depend on the trade-off we want to strike.
-Be it a priorization of fidelity or of speed or execution, this choice does not change the task.
+Be it a prioritization of fidelity or of speed or execution, this choice does not change the task.
 For the task to be fully defined however, the agent needs a reward or cost response upon
-interaction with the system. 
+interaction with the system. This value should serve as guidance, informing the agent seeking
+to maximize its cumulative reward ---or equivalently minimize its cumulative cost--- about how
+well it is progressing toward the completion of the task.
+This signal is designed \cite{Singh2009-cm, Randlov1998-qo, Russell1998-yk},
+and can very easily misshapen, leading to unforeseen effects or even exploits
+\cite{Amodei2016-vg, Everitt2017-ql, Pan2022-ja, Langosco2022-eo, Skalse2022-xe}.
+It is natural to think about energy parsimony when it comes to the primary signal optimized by
+human when walking or running. This has been proved against in the case of horses in the past
+however \cite{Hoyt1981-ma, Farley1991-fd}.
+Nevertheless, it has recently been found that minimizing energy consumption leads
+to the emergence of gaits in legged robots \cite{Fu2021-hk}.
+A very recent study documents that how agents can overfit to certain reward designs,
+and emphasizes that one should construct a reward while keeping in mind that it is the 
+reward accumulation that we want the agent to optimize toward \cite{Booth2023-ua}.
 
-WIP
+Hello
 
 \section{Desiderata}
 \label{s:desiderata}
