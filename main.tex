@@ -100,7 +100,27 @@ a catalog with bi-directional links all over the place.
 \section{Landscape}
 \label{s:landscape}
 
-TODO
+By \textit{simulator}, we refer to a piece of software that our learning agent interact with in
+the course of its learning process. A simulator is what facilitates a \emph{simulation}, which
+Sheldon M. Ross defines in \cite{Ross2022-ra} as the imitation of the operation of a real-world
+process or system over time. In our case, the process we are interested in is the human gait.
+Formally, the simulator is modelled as a Markov Decision Process or MDP \cite{Puterman1994-pf}.
+The latter consists of a tuple containing a state space (the sitations the agent finds itself in),
+an action space (the decisions the agent might make), a dynamics model that governs the physics of
+the world in which the agent interacts, and a reward process. MDPs are used in the formalism of
+problems defined under the reward hypothesis, which sees each task as the maximization of a signal
+called reward \cite{Bowling2022-li, Silver2021-uj}. Under this umbrella of problem formulations
+lies \emph{reinforcement learning}, \textit{abbrv.}~RL \cite{Sutton1998-ow}. It is used to
+formalize problems of sequential decision making under uncertainty, and fits the problem of
+locomotion control well if we see the gait problem as consisting in making a series of reactive
+decisions consecutively in the interactive environment that is our simulator. We see immediately
+that the RL agent is limited by the speed at which the simulator responds, which is why this
+aspect is so critical. The choice of simulator will depend on the trade-off we want to strike.
+Be it a priorization of fidelity or of speed or execution, this choice does not change the task.
+For the task to be fully defined however, the agent needs a reward or cost response upon
+interaction with the system. 
+
+WIP
 
 \section{Desiderata}
 \label{s:desiderata}
