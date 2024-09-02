@@ -347,3 +347,4 @@ Temporary Items
 # End of https://www.toptal.com/developers/gitignore/api/macos,latex
 
 main.pdf
+*.pdf
