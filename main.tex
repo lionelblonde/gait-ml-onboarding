@@ -9,6 +9,7 @@
 \usepackage{geometry}   % For setting page margins
 \geometry{margin=1in}
 \usepackage{cite}       % For managing citations
+\usepackage{comment}    % For comment blocks
 
 % Document Information
 \title{\textsc{Gait} Project $n+1$}
@@ -142,7 +143,79 @@ reward accumulation that we want the agent to optimize toward \cite{Booth2023-ua
 Simulators designed for control and locomotion are in general released with pseudo-benchmarked
 reward function. These are the result of tedious hand-engineering, often tainted by the issues
 raised and studied in \cite{Booth2023-ua}. They are usually aligned with the forward progress
-of the agent in the sagittal plane \cite{Schulman2015-jt}. Another way
+of the agent in the sagittal plane \cite{Schulman2015-jt}. Another way to design a reward that
+would incentivize the learning agent to adopt the desired behavior is to leverage the availability
+of an expert at the task. This expert could be human or artificial, \textit{e.g.} a hard-coded
+controller. This setting is called imitation learning, or learning from demonstration
+\cite{Billard2008-jb, Atkeson1997-db, Bagnell2015-ni}.
+Assuming alignment of expert and agent gaits, a sensible metric to use as cost could be the
+average displacement between the reference expert gait.
+Such a cost would be zero when the agent perfectly overlaps with the expert behavior.
+The alignment assumption however becomes however increasingly in valid as we stray from purely
+synthetic scenarios.
+
+The locomotion controller we want to learn, denoted as $\pi$, maps the state space $\mathcal{S}$
+onto the action space $\mathcal{A}$.
+If demonstrations are state-action pairs, the problem of learning such a $\pi$ reduces to solving
+a supervised learning problem (dubbed \textit{behavioral cloning}).
+
+Note, learning a model with behavioral cloning (BC)
+\cite{Pomerleau1989-nh, Pomerleau1990-lm, Ratliff2007-fc}
+can be done \textit{offline}, \textit{i.e.}
+without interacting with the simulator ---characterizing \textit{online} systems. BC is flawed
+in more than one way \cite{Ross2010-eb, Ross2011-dn}.
+To learn a viable policy, it requires diverse and action-annotated demonstrations in abundance.
+Since this requirement is seldom met, practitioners often turn to apprenticeship learning (AL),
+working in lower data regimes, and at least equally importantly, not requiring the expert data
+to be annotated with controls (actions).
+Indeed, the controls are rarely readily available (\textit{e.g.} video demonstrations).
+AL \cite{Abbeel2004-rb, Ratliff2006-kj, Kolter2008-mr} is traditionally consisting
+of two stages: 
+\textit{(i)} inverse reinforcement learning (IRL; to derive a cost from the expert behavior), and
+\textit{(ii)} reinforcement learning (RL; to derive a behavior from the cost being learned).
+These stages are sometimes done once, one after the other, or in alternation throughout the entire
+learning process \cite{Ho2016-xn}.
+
+Trying to recover the \textit{real} reward (the one optimized by the expert and that led to its
+behavior) has been shown to be an ill-posed problem \cite{Ziebart2008-fe}.
+A relaxation of AL consisting in learning only a \textit{surrogate} cost has proved enough,
+and has led to state-of-the-art results with
+generative adversarial imitation learning (GAIL) \cite{Ho2016-bv}.
+Being a relaxation of GAIL, it can learned from control-annotated demonstrations, or from
+observations (states) alone, without actions from the expert.
+The first setting is called ``ILfD'', the second ``ILfO'', for ``Imitation Learning from
+Observations'' \cite{Merel2017-lo, Liu2017-dr, Reed2018-ga, Fu2018-zu, Aytar2018-by,
+Torabi2018-fg, Torabi2018-nb}.
+Adversarial imitation learning is the go-to way to learn a sensible cost (reward) signal,
+but what about step \textit{(ii)} above ---the RL method to use in order to learn
+a controller from the surrogate reward?
+
+Prime candidates to solve the RL outer loop and that have proved successful in various scenarios
+including locomotion tasks are trust-region methods. The figure-heads of this family of algorithms
+are TRPO \cite{}, PPO \cite{},
+MPO \cite{}, V-MPO \cite{},
+and MDPO \cite{}.
+The latter, which stands for ``Mirror Descent Policy Optimization'' has had its first surge of use
+recently in an LLM context \cite{}.
+MDPO is, according to the original paper, simpler and more stable than PPO, which is infamously
+tedious to tame \cite{}.
+MDPO has been introduced in two variants, one stems from PPO, the other from SAC \cite{},
+a method that falls under an architecture called \textit{actor-critic}.
+While PPO is \textit{on-policy}, SAC (which stands for ``Soft Actor-Critic''),
+is \textit{off-policy}.
+A method is said to be on-policy when the policy being learned and the one being used are one and
+the same. When they are distinct, the method is off-policy (and the two policies are called the
+\textit{behavior} and the \textit{target} policies).
+We will shortly tackle why off-policy-ness is of great interest when dealing with real-world RL
+in scenarios where safety is critical and where data scarcity is being faced
+(\textit{cf.}~\ref{ss:efficiency}).
+
+\begin{comment}
+another way if sequential data: sequence modelling
+    task: next token prediction with transformer
+    task: RL or IL, but with policy and/or value that exacts features with transformer
+    RT1-2, Q-Transformer, Diffusion policy, BeT
+\end{comment}
 
 \section{Desiderata}
 \label{s:desiderata}
@@ -171,15 +244,36 @@ before dealing with the former (the speed of execution) in \ref{ss:speed}.
 
 TODO
 
+\begin{comment}
+sample-efficiency very important for the project
+two main avenues for potential major sample-efficiency improvements
+1. off-policy learning
+2. model-based learning
+    forward model, world model (more loose, less strict signature)
+    dyna style, SVG style, or MPC style, i.e. optimal control (book reference)
+\end{comment}
+
 \subsection{Execution Speed}
 \label{ss:speed}
 
 TODO
 
+\begin{comment}
+
+\end{comment}
+
 \section{Best Candidate}
 \label{s:best}
 
 TODO
+
+\begin{comment}
+====extra things====
+in-context learning (in-context RL --ICRL)
+trust-region methods (TRPO, PPO, MDPO)
+TD-MPC2 >> DreamerV3 for continuous control
+Temporal Cycle-Consistency Learning (TCC)
+\end{comment}
 
 % References
 \bibliographystyle{plain}
