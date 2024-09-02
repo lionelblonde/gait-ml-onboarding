@@ -121,19 +121,28 @@ For the task to be fully defined however, the agent needs a reward or cost respo
 interaction with the system. This value should serve as guidance, informing the agent seeking
 to maximize its cumulative reward ---or equivalently minimize its cumulative cost--- about how
 well it is progressing toward the completion of the task.
-This signal is designed \cite{Singh2009-cm, Randlov1998-qo, Russell1998-yk},
+This signal is designed \cite{Singh2009-cm, Randlov1998-qo, Russell1998-yk, Sims1994-zb},
 and can very easily misshapen, leading to unforeseen effects or even exploits
-\cite{Amodei2016-vg, Everitt2017-ql, Pan2022-ja, Langosco2022-eo, Skalse2022-xe}.
+\cite{Amodei2016-vg, Everitt2017-ql, Pan2022-ja, Langosco2022-eo, Skalse2022-xe, Sims1994-zb}
 It is natural to think about energy parsimony when it comes to the primary signal optimized by
 human when walking or running. This has been proved against in the case of horses in the past
 however \cite{Hoyt1981-ma, Farley1991-fd}.
+\footnote{Particularly interesting quote from \cite{Sims1994-zb}:
+``It is important that the physical simulation be reasonably accurate when optimizing
+for creatures that can move within it. Any bugs that allow energy leaks from non-conservation,
+or even round-off errors, will inevitably be discovered and exploited by the evolving
+creatures. Although this can be a lazy and often amusing approach for debugging a physical
+modeling system, it is not necessarily the most practical.''}
 Nevertheless, it has recently been found that minimizing energy consumption leads
 to the emergence of gaits in legged robots \cite{Fu2021-hk}.
 A very recent study documents that how agents can overfit to certain reward designs,
 and emphasizes that one should construct a reward while keeping in mind that it is the 
 reward accumulation that we want the agent to optimize toward \cite{Booth2023-ua}.
 
-Hello
+Simulators designed for control and locomotion are in general released with pseudo-benchmarked
+reward function. These are the result of tedious hand-engineering, often tainted by the issues
+raised and studied in \cite{Booth2023-ua}. They are usually aligned with the forward progress
+of the agent in the sagittal plane \cite{Schulman2015-jt}. Another way
 
 \section{Desiderata}
 \label{s:desiderata}
