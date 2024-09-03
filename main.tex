@@ -250,7 +250,29 @@ two main avenues for potential major sample-efficiency improvements
 1. off-policy learning
 2. model-based learning
     forward model, world model (more loose, less strict signature)
-    dyna style, SVG style, or MPC style, i.e. optimal control (book reference)
+    Dyna style, SVG style, or MPC style, i.e. optimal control (book reference)
+SVG style methods: BP (BPTT) through env possible because world modelled with a NN
+but there is another way to BP through env without learning an extra model: using a diffsim
+diffsim are therefore a way to benefit from the sample efficiency of SVG-style model-based methods
+    without the need to learn anything else than the agent's policy (and value)
+there is a clear advantage with diffsim: the world is not learned from data points
+    which we usually don't have before and it is the agent that collects data while learning
+    instead, it is crafted by the practitioner who injects acquired domain knowledge
+    and structural biases
+    the diffsim designer has knowledge about the domain and knows how the design choices impact
+    the interaction time (directly a consequence of the integration time to dynamics to kinematics)
+    the designer can strike the desired trade-offs between fidelity and speed: as the fidelity
+    increases, more sophisticated models are used, which are more costly to integrate over.
+diffsim are hard-coded and therefore not prone to model hacking (model exploitation/bias) like the
+    learned models are in model-based RL
+locomotion sim are tedious to make diff notably because of the contacts, which introduce
+    discontinuities in the sim response and therefore Dirac deltas in the diffsim gradients
+also, in order to BP from the RL objective through the diffsim backward long trajectories, the
+    reward itself need be a diff signal, which is not necessarily obvious in common suites
+    in the case of IL, displacement error need only the dynamics to be diff, but diffsims
+last note: diffsim are challenging to craft, and trade-offs / sacrifices are not rare
+    therefore, straying from the document use cases with original or novel usage often comes with
+    surprises such as numerical bugs
 \end{comment}
 
 \subsection{Execution Speed}
@@ -259,7 +281,29 @@ two main avenues for potential major sample-efficiency improvements
 TODO
 
 \begin{comment}
+domain randomization very useful to be able to communicate to the agent what is relevant and what
+    is not; by seeing a variety of textures and colors that do not change the task in nature, we
+    want the model to understand what it should be invariant to (cf. literature on self-supervised
+    learning)
+    SO, if one want to close the gap, showing lots of things to the agent is crucial, and for that
+    to be feasible, the sim need be fast
 
+problem of character animation in rendering engine is almost identical
+    an advantage they have is that game engines do not car as much about contacts being sharp
+    usage of dampeners that make contact smooth --making them technically infringe physics
+    those are usually very fast and done by game studios (so run on GPU), but clear trade-off
+
+loco sims that are high fidelity and well-vetted are all CPU-based
+    GPU-based sims are considerably faster but some operations in locomotion model primitives
+    can not be done via big matrix multiplications and are therefore not able to leverage the
+    capabilities of GPU, which is why those sims have not been ported to GPU as of yet
+    BRAX/MLX might be getting there very soon, so it is very important to keep an eye on those
+    dlex from Nvidia, warp
+    again: the more we go high-fidelity with real world, the better we can close the sim2real gap
+
+muscles
+    OpenSim: CPU
+    dflex: GPU
 \end{comment}
 
 \section{Best Candidate}
@@ -269,10 +313,15 @@ TODO
 
 \begin{comment}
 ====extra things====
-in-context learning (in-context RL --ICRL)
-trust-region methods (TRPO, PPO, MDPO)
-TD-MPC2 >> DreamerV3 for continuous control
+
+
+TD-MPC2 >> DreamerV3 for continuous control (DreamerV3 better for discrete control,
+    although allegedly worse now than IRIS, Diamond, TWM, etc.)
+this requires to learn a world model, to then plan on
+
+MoCap
 Temporal Cycle-Consistency Learning (TCC)
+in-context learning (in-context RL --ICRL)
 \end{comment}
 
 % References
