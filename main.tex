@@ -277,16 +277,103 @@ before dealing with the former (the speed of execution) in \ref{ss:speed}.
 \subsection{Sample Efficiency}
 \label{ss:efficiency}
 
-TODO
+Since simulators can be complex and therefore slow,
+it is of primary interest to treat with methods
+that require few interactions with the simulator,
+\textit{i.e.} sample-efficient methods.
+
+There are two main avenues for potential major improvements in sample efficiency:
+off-policy learning (described briefly earlier in \ref{s:landscape}),
+and model-based learning.
+Learning off-policy allows for substantial sample efficiency gains because it is compatible
+with experience replay. This mechanism consists in keeping a FIFO-queue buffer containing the
+$N$ most recent transitions, and training the agent's policy (and value) on its contents.
+It is \textit{off}-policy because the sampling distribution corresponding to getting transitions
+uniformly from the replay buffer is a mixture of past policy updates, which is (in non-degenerate
+cases) different from the policy being learned. Those methods are usually less friendly, but the
+sample-efficiency gains are arguably well worth it in practical scenarios.
+
+Model-based learning consists in learning a model of the environment in addition to learning
+a policy (and value). It can be abbreviated MBRL for ``model-based RL''. What is modeled has
+traditionally been the elements of the MDP, \textit{i.e.}
+the forward dynamics $f: (s_t, a_t) \mapsto s_{t+1}$,
+the reward process $r: (s_t, a_t) \mapsto r_t$,
+and the termination flag (whether the episode is over or not) $d: (s_t, a_t) \mapsto d_t$.
+This is because such a model can then act as a substitute for the real environment.
+In that case, the interaction needs are lowered, and the method is more sample efficient
+(technically). This category of MBRL approaches (replacing the environment with a learned one)
+was introduced by Sutton with Dyna \cite{Sutton1991-cp}.
+
+In addition to ``Dyna-style'' methods, there are ``SVG-style'' methods, where SVG refers to the
+``Stochastic Value Gradients'' work \cite{Fairbank2012-rp, Heess2015-va, Amos2021-wd}.
+The origin of this approach could be traced back to the appearance of
+back-propagation-through-time (BPTT)
+\cite{Rumelhart1986-ls, Robinson1987-px, Nguyen1990-zx, Werbos1990-qa,
+Williams1990-xw, Jordan1992-wn, Grzeszczuk1998-ij}
+(other possible name: ``pathwise derivatives''.)
+It has then been continued in more modern setting by \cite{Schmidhuber2011-mt, Deisenroth2011-ya}, 
+and very recently in the very successful DreamerV\{1-3\} methods
+\cite{Hafner2019-oa, Hafner2021-td, Hafner2023-wk, Lin2023-ql}.
+These methods learn a model of the world with neural networks so that the learned approximation of
+the world can be part of the episode-spanning computational graph created by the RL objective.
+Effectively, the gradient propagate backward through the trajectories, from the termination to
+the initialization.
+
+The third approach to MBRL consists in learning a model of the world and deriving a
+policy by \emph{planning} on the model with a method like MPC (model-predictive control).
+MPC is an online optimal control method
+\cite{Bryson1969-mg, Bertsekas2000-yi, Kirk2004-dq}.
+By virtue of being online, it is adaptable by design.
+It might look closer to optimal control than RL but more modern
+MPC-style methods use a learned \textit{termination value or critic}
+for the learned controller to always be able to gauge the long-term of its plans, as in
+TD-MPC2 \cite{Hansen2024-ld}.
+
+For the three ways of conducting MBRL (Dyna-style, SVG-style, MPC-style),
+it is common to learn models that do not follow the strict signatures of the MDP elements.
+Instead, a more complex model is often learned, the forward model is derived from it if needed.
+More complex models allow for more salient and holistic neural representations to be learned,
+leading to better values and controller down the line. They are called \emph{world models},
+which is an appropriately generic name considering how one might differ from one work to the next.
+Some references to world models include
+\cite{Ha2018-sa, Hafner2018-zm, Hessel2021-ah, Micheli2023-mr, Ding2024-oq, Alonso2024-jo}.
+So:
+\begin{description}
+    \item[Dyna-style]
+        The Dyna-style methods learn a model of the world to use this as an approximation
+        instead of interacting with the simulator, hence \emph{technically} reducing how many times
+        the agent must interact with the simulation to learn.
+    \item[SVG-style]
+        The SVG-style methods learn a \emph{neural} model of the world to use in the objective's
+        computational graph and be part of the optimization problem directly,
+        in the hope that leveraging world gradients will make the controller learn faster.
+    \item[MPC-style]
+        The MPC-style methods learn a model of the world to plan on, and planning is generally
+        less costly in data points than model-free RL methods to derive a policy.
+\end{description}
+
+All three methods have their respective merits.
+The most \textit{neural land} of the three is the SVG-style family.
+It has had successes (see above) but mostly disappoints for the expected successes
+it should have based on how paradigm-shifting end-to-end neural pipelines have been in essentially
+all other sub-domains of machine learning.
+The culprit is the behavior of the gradients of the world models in control scenarios
+(let us call those \textit{world gradients}).
+DreamerV\{1-3\} (SVG-style) has been extremely successful in \emph{discrete} control,
+but TD-MPC2 (MPC-style) still yields better results in \emph{continuous} control.
+This is likely due to the world gradients being tedious to deal with in continuous control tasks.
+Backpropagation of annoying gradients (too big or too small) has been a hot topic for as long
+as neural networks have existed ---see previous references cited above on BPTT.
+
+A way to potentially get better world gradient is to use a \emph{differentiable simulator}.
+Note that in such a case, there is no world model \textit{a priori}.
+Instead of designing a learning task for a world model to extract useful and salient information
+from the world by itself ---learning just what it \emph{needs} to solve the task,
+the world gradients the agent gets are derived from hard-coded operations encoded via
+deep learning frameworks.
+
 
 \begin{comment}
-sample-efficiency very important for the project
-two main avenues for potential major sample-efficiency improvements
-1. off-policy learning
-2. model-based learning
-    forward model, world model (more loose, less strict signature)
-    Dyna style, SVG style, or MPC style, i.e. optimal control (book reference)
-SVG style methods: BP (BPTT) through env possible because world modelled with a NN
 but there is another way to BP through env without learning an extra model: using a diffsim
 diffsim are therefore a way to benefit from the sample efficiency of SVG-style model-based methods
     without the need to learn anything else than the agent's policy (and value)
