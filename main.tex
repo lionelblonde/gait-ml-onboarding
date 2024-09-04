@@ -366,36 +366,51 @@ Backpropagation of annoying gradients (too big or too small) has been a hot topi
 as neural networks have existed ---see previous references cited above on BPTT.
 
 A way to potentially get better world gradient is to use a \emph{differentiable simulator}.
+We will abbreviate those as \textit{diffsims}.
 Note that in such a case, there is no world model \textit{a priori}.
 Instead of designing a learning task for a world model to extract useful and salient information
 from the world by itself ---learning just what it \emph{needs} to solve the task,
 the world gradients the agent gets are derived from hard-coded operations encoded via
 deep learning frameworks.
+As such, diffsims are a way to benefit from the sample efficiency of SVG-style model-based methods
+without the need to learn anything else than the agent's policy (and value).
+They are not \textit{learned from data} (note, \textit{where} this data comes from is a hurdle
+of its own in world modeling) but are \textit{crafted} by the seasoned practitioner
+who injects domain knowledge and well-vetted structural biases in it.
+The diffsim designer has knowledge about the domain and knows how the design choices impact
+the interaction time (direct consequence of the integration from dynamics to kinematics).
+The designer can strike the desired trade-offs between fidelity with the real physics and speed.
+More sophisticated models can lead to higher fidelity, but are more costly to integrate over.
 
-
-\begin{comment}
-but there is another way to BP through env without learning an extra model: using a diffsim
-diffsim are therefore a way to benefit from the sample efficiency of SVG-style model-based methods
-    without the need to learn anything else than the agent's policy (and value)
-there is a clear advantage with diffsim: the world is not learned from data points
-    which we usually don't have before and it is the agent that collects data while learning
-    instead, it is crafted by the practitioner who injects acquired domain knowledge
-    and structural biases
-    the diffsim designer has knowledge about the domain and knows how the design choices impact
-    the interaction time (directly a consequence of the integration time to dynamics to kinematics)
-    the designer can strike the desired trade-offs between fidelity and speed: as the fidelity
-    increases, more sophisticated models are used, which are more costly to integrate over.
-diffsim are hard-coded and therefore not prone to model hacking (model exploitation/bias) like the
-    learned models are in model-based RL
-locomotion sim are tedious to make diff notably because of the contacts, which introduce
-    discontinuities in the sim response and therefore Dirac deltas in the diffsim gradients
-also, in order to BP from the RL objective through the diffsim backward long trajectories, the
-    reward itself need be a diff signal, which is not necessarily obvious in common suites
-    in the case of IL, displacement error need only the dynamics to be diff, but diffsims
-last note: diffsim are challenging to craft, and trade-offs / sacrifices are not rare
-    therefore, straying from the document use cases with original or novel usage often comes with
-    surprises such as numerical bugs
-\end{comment}
+Plus, diffsims are hard-coded and therefore less prone to \textit{model hacking} (also refered
+to as \textit{model exploitation} or \textit{model bias}).
+This phenomenon is observed when the policy uses the model of the world in ways that were
+unintended by the practitioner. It \textit{hacks} or \text{exploits} the model to solve the task
+it was asked to solve, but did it in unforeseen ways at test time
+\cite{Ross2012-yj}.
+This is typical when dealing with black boxes.
+The phenomenon is close in spirit to reward hacking.
+It is easier to correct in diffsims simply because, since the simulator is hard-coded and readable,
+we can \textit{know} what was exploited. This part of the pipeline is a white box.
+Model exploitation loopholes are especially critical to avoid in SVG-style methods since
+feedback propagate along trajectories and pollutes everytime upstream if erroneous.
+Also, locomotion simulators are tedious to turn into diffsims notably because of the
+\emph{contacts}, which introduce discontinuities in the simulator's response, and therefore
+Dirac deltas in the diffsim gradients.
+Design choices with respect to contact design are therefore particularly critical.
+Harder contacts are better for fidelity and therefore closing the sim-to-real gap,
+but softer contacts (dampened, surfaces like ground being permeable) remove the risk of introducing
+spikes in world gradients.
+Another point of design: in order to back-propagate from the RL objective through the diffsim
+backward through long trajectories, the reward itself need be a differentiable signal
+with respect to the quantities of interest, which is not necessarily obvious.
+In the case of IL however, the displacement error need only the dynamics to be differentiable.
+Lastly, since diffsims are tedious to engineer, using them is often an exercise in patience.
+Here are relevant references on diffsims:
+\cite{Degrave2016-vr, Hu2019-ax, Falisse2019-ge, Hu2020-eb, Qiao2020-um, Gradu2020-kq,
+Geilinger2020-ar, Mora2021-pp, Heiden2021-fb, Clarke2021-rr, Werling2021-da, Qiao2021-zn,
+Huang2021-le, Heiden2021-ey, Grinsztajn2021-mr, Daniel_Freeman2021-az, Lin2022-jr, Xu2022-bz,
+Suh2022-mn, Allen2022-vc, Chen2022-zd, Ren2023-yc, Georgiev2024-rs}.
 
 \subsection{Execution Speed}
 \label{ss:speed}
@@ -435,7 +450,7 @@ TODO
 
 \begin{comment}
 ====extra things====
-
+S4 etc.
 
 TD-MPC2 >> DreamerV3 for continuous control (DreamerV3 better for discrete control,
     although allegedly worse now than IRIS, Diamond, TWM, etc.)
