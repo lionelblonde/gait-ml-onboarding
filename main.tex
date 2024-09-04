@@ -191,16 +191,20 @@ but what about step \textit{(ii)} above ---the RL method to use in order to lear
 a controller from the surrogate reward?
 
 Prime candidates to solve the RL outer loop and that have proved successful in various scenarios
-including locomotion tasks are trust-region methods. The figure-heads of this family of algorithms
-are TRPO \cite{}, PPO \cite{},
-MPO \cite{}, V-MPO \cite{},
-and MDPO \cite{}.
+including locomotion tasks are \emph{trust-region methods}.
+The figure-heads of this family of algorithms
+are TRPO \cite{Schulman2015-jt}, PPO \cite{Schulman2017-ou},
+MPO \cite{Abdolmaleki2018-sp}, V-MPO \cite{Francis_Song2020-sd},
+and MDPO \cite{Tomar2020-ts}.
+
 The latter, which stands for ``Mirror Descent Policy Optimization'' has had its first surge of use
-recently in an LLM context \cite{}.
+recently in an LLM context \cite{Gunter2024-hu}.
 MDPO is, according to the original paper, simpler and more stable than PPO, which is infamously
-tedious to tame \cite{}.
-MDPO has been introduced in two variants, one stems from PPO, the other from SAC \cite{},
-a method that falls under an architecture called \textit{actor-critic}.
+tedious to tame \cite{Engstrom2019-jt, Huang2022-bv, Moalla2024-xq}.
+MDPO has been introduced in two variants, one stems from PPO,
+the other from SAC \cite{Haarnoja2018-bm, Haarnoja2018-uo},
+a method that falls under an architecture called \textit{actor-critic}
+\cite{Crites1995-hn, Konda2000-ef, Sutton2001-vh}.
 While PPO is \textit{on-policy}, SAC (which stands for ``Soft Actor-Critic''),
 is \textit{off-policy}.
 A method is said to be on-policy when the policy being learned and the one being used are one and
@@ -210,12 +214,43 @@ We will shortly tackle why off-policy-ness is of great interest when dealing wit
 in scenarios where safety is critical and where data scarcity is being faced
 (\textit{cf.}~\ref{ss:efficiency}).
 
-\begin{comment}
-another way if sequential data: sequence modelling
-    task: next token prediction with transformer
-    task: RL or IL, but with policy and/or value that exacts features with transformer
-    RT1-2, Q-Transformer, Diffusion policy, BeT
-\end{comment}
+If one has access to demonstrations in abundance \emph{and} organized in complete sequences 
+(\textit{i.e.} not sub-sampled)
+then one can turn to \emph{sequence modeling}
+(\textit{cf.}~\cite{Goodfellow2016-ev}, \textsc{Chap.}~10).
+Tackling control problem as sequence prediction is not new, but is disregards the fact that
+control agents, as interactive in nature, must comply with the physics of their environment
+\cite{Salzmann2020-jl}. Typical technical solutions have involved RNN/LSTM backbones for
+their ability to propagate information in time across timesteps.
+It does so by compressing previous information seen in the trajectory (accumulating over time)
+into a fixed size hidden state.
+
+Mainstream attention has moved onto a different architecture,
+the Transformer \cite{Vaswani2017-lk},
+which splits sequences in tokens from a fixed vocabulary,
+and learning how to build sequences by trying to predict the next token given all the previous
+ones in the sequence.
+The core mechanism at play is \emph{attention}, and specifically \emph{causal attention}, where
+the future is masked: the model can not attend to future token in its prediction.
+This ensures temporal consistency.
+The two concurrent works that first tackled control problems
+\textit{(i)} as sequence modeling problems,
+\textit{(ii)} with transformers, are
+\cite{Chen2021-qq} and \cite{Janner2021-wn}.
+An vast array of works has spawned from these.
+Still, they are inherently flawed because they are not trained online, but from an offline dataset.
+Despite this flaw, they have proved very effective for real-world humanoid locomotion tasks
+\cite{Radosavovic2024-xl}
+and real-world robotics tasks \cite{Brohan2022-vs, Brohan2023-rm}.
+The obvious caveat is that it is a challenging engineering endeavor.
+Hybrid solutions have led to the best results so far.
+These leverage the power of transformers as feature extractors from sequences, but the task is of
+the RL type, \textit{i.e.} maximize the cumulative reward, or IL type.
+Humanoid locomotion via RL is the goal of \cite{Radosavovic2024-dm},
+with broader robotics tasks via RL being the focus in the Q-Transformer \cite{Chebotar2023-hq},
+and via BC (IL) in Behavior Transformer (BeT) \cite{Shafiullah2022-ux}.
+Diffusion heads have also been used on top of transformer backbones with great practical success,
+like in the Diffusion Policy \cite{Chi2023-is}.
 
 \section{Desiderata}
 \label{s:desiderata}
