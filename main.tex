@@ -251,6 +251,8 @@ with broader robotics tasks via RL being the focus in the Q-Transformer \cite{Ch
 and via BC (IL) in Behavior Transformer (BeT) \cite{Shafiullah2022-ux}.
 Diffusion heads have also been used on top of transformer backbones with great practical success,
 like in the Diffusion Policy \cite{Chi2023-is}.
+Diffusion has also been successful for locomotion:
+Motion Diffusion Model (MDM) \cite{Tevet2023-pv}.
 
 \section{Desiderata}
 \label{s:desiderata}
@@ -442,44 +444,127 @@ From this diversity comes robustness with respect to the unknowns of the real wo
 So, if one want to close the gap, showing lots of things to the agent is crucial
 --- \textit{e.g.} via DR, and for that to be feasible, we need fast simulation engine backends.
 
+Performant rendering engine have proved crucial since they allow techniques like DR.
+The video game industry has invested huge amounts to have performant rendering backends.
+It is therefore not surprising to witness the use of game engines to train agents via control
+approaches.
+The problem of solving locomotion problems in simulation with control algorithms
+has not only been tackled by the
+robotics or biorobotics crowds, but also by the \emph{character animation} crowd,
+originiting in works such as \cite{Raibert1991-wu, Van_de_Panne1993-is, Grzeszczuk1998-ij}.
+An account of ``pre-2012'' state-of-the-art works carried out in
+interactive character animation using simulated physics
+is given in \cite{Geijtenbeek2012-mq}.
+Later works include: MACE \cite{Peng2016-fs},
+DeepLoco \cite{Peng2017-fg},
+Phase-Functioned Neural Network (PFNN) \cite{Holden2017-wv},
+DeepMimic \cite{Peng2018-ap},
+UniCon \cite{Wang2020-cz},
+AMP \cite{Peng2021-ge},
+SuperTrack \cite{Fussell2021-uf}
+\footnote{Note, SuperTrack is from a game engine studio,
+uses a world model, as well as pathwise derivatives.},
+DeepPhase \cite{Starke2022-za},
+AdaptNet \cite{Xu2023-ug}.
+The goal of character animation is for the rendered video to be believable enough for the viewer,
+and in some cases controllable ---desirable trait for interactive mediums like video games.
+The goal is \emph{not} to be as strictly faithful to the real physics of the world as possible.
+As such, the physics engine backends used in character animation are often simplifying how
+contacts are handled. Indeed, as described earlier, contacts introduce discontinuities in the
+simulator's response, which makes the integration of the dynamics into kinematics more numerically
+unstable. When a foot hits or leaves the ground, there is a sudden change in the system's dynamics,
+causing:
+\textit{(a)} instability in numerical integration due to rapid force changes,
+\textit{(b)} friction and slipping complications, which are hard to model accurately,
+\textit{(c)} impulse forces during impact, requiring careful handling to avoid simulation errors,
+\textit{(d)} constraint violations, such as feet penetrating the ground or sliding unexpectedly.
+Dampeners can solve contact problems in locomotion simulators by smoothing the force transitions
+during contact events. Engines usually leverage such techniques, unless fidelity with real world
+locomotion is paramount.
+MuJoCo \cite{Todorov2012-gc} is often considered superior to many other simulation engines
+for handling contacts due to its advanced and efficient contact modeling.
+MuJoCo uses a form of \emph{soft contact model} with damping to handle contacts
+Specifically, MuJoCo employs a compliant contact model
+\footnote{A \emph{compliant contact model} is a method of simulating contacts between objects by
+allowing small deformations or penetrations at the contact point, instead of treating the objects
+as perfectly rigid. This approach uses spring-like forces and dampers to model the interaction
+between the contacting surfaces.}.
+where contacts are modeled using a
+combination of elastic (spring-like restoring force) and damping (energy-dissipation) forces.
 
-\begin{comment}
-    learning)
+The major hurdle of MuJoCo is that it was developed to be used on CPU hardware.
+But recent works, including RP1M \cite{Zhao2024-vv},
+have started using MuJoCo XLA (MJX)
+\footnote{\url{https://mujoco.readthedocs.io/en/stable/mjx.html}},
+which supports simulation in parallel with GPUs.
+While very high-fidelity biorobotics-inspired simulators such as
+OpenSim \cite{Seth2011-ru} and
+MyoSuite \cite{Caggiano2022-ag}
+will likely not be ported to GPU, chances are the control community will make the switch
+from the original MuJoCo backends (CPU) to MJX (GPU).
+This transition allows for the training of agents in a massively parallel fashion.
+Nvidia's Isaac Gym \cite{Makoviychuk2021-wv} did report tremendous speed-ups due to the
+parallelization enabled by having the GPU hardware as the core design choice.
+Nvidia also developed \texttt{dflex}
+\footnote{\url{https://github.com/NVlabs/DiffRL/tree/main/dflex}},
+a PyTorch-based physics diffsim, which they used in
+SHAC \cite{Xu2022-bz} and AHAC \cite{Georgiev2024-rs}.
+For reasons unknown, \texttt{dflex} is not maintained anymore since 2022, despite being in use
+in their 2024 paper (see appendix of the latter for details).
 
-problem of character animation in rendering engine is almost identical
-    an advantage they have is that game engines do not car as much about contacts being sharp
-    usage of dampeners that make contact smooth --making them technically infringe physics
-    those are usually very fast and done by game studios (so run on GPU), but clear trade-off
+MJX was built by core contributors to both MuJoCo
+and Brax \cite{Daniel_Freeman2021-az} (diffsim),
+who will together continue to support both Brax and MJX
+---according to the official MJX documentation.
+So, the best candidate when it comes to diffsim seems to be Brax.
+The only caveat is that it requires the use of JAX deep learning framework.
+While there exists an official PyTorch wrapper in Brax, it does not allow gradients to flow
+through, making it a non-differentiable GPU-based simulator.
+Note, Brax takes a fair amount of shortcuts to make its primitives differentiable
+(shared in the companion paper \cite{Daniel_Freeman2021-az}).
 
-loco sims that are high fidelity and well-vetted are all CPU-based
-    GPU-based sims are considerably faster but some operations in locomotion model primitives
-    can not be done via big matrix multiplications and are therefore not able to leverage the
-    capabilities of GPU, which is why those sims have not been ported to GPU as of yet
-    BRAX/MLX might be getting there very soon, so it is very important to keep an eye on those
-    dlex from Nvidia, warp
-    again: the more we go high-fidelity with real world, the better we can close the sim2real gap
+When it comes to \emph{musculo-skeletal} models, \texttt{dflex} has one.
+Compared to the ones from 
+OpenSim \cite{Seth2011-ru} and
+MyoSuite \cite{Caggiano2022-ag}
+which are CPU-based and therefore slow,
+\texttt{dflex}'s is GPU-based (fast) \emph{and} differentiable.
+The major problem being that \texttt{dflex} is not maintained anymore.
+Note, a private conversation with one of the main authors of the AHAC paper
+revealed that the musculo-skeletal model they have is available from head-to-toe
+despite being only from hips-to-toe in the papers (SHAC and AHAC).
+The upper body has simply been commented out in the codebase.
+The author encouraged use to communicate with them about our project to that they can
+assist us in using their \textit{next-gen} simulator engine, \texttt{warp}
+\footnote{\url{https://github.com/NVIDIA/warp}}.
+Nvidia left \texttt{dflex} development, and has yet to release its successor diffsim
+based on \texttt{warp}. This day might never come.
+Note, Isaac Gym development has also been abandonned, probably to promote the move to
+\texttt{warp}.
+To conclude, GPU-based simulators have allowed huge speed-ups in training and therefore
+development time. The main player in the field is Nvidia ---not surprising considering their
+place in the GPU market, but now is an awkward time where they seem to be switching backend.
+Using MJX seems to be the smarted move support-wise.
+To conclude:
 
-muscles
-    OpenSim: CPU
-    dflex: GPU
-\end{comment}
+\emph{Both MJX and Brax (diffsim) are active and led by Google, but are written in JAX.
+Isaac Gym and \texttt{dflex} (diffsim) are inactive and led by Nvidia, but they are in PyTorch.}
 
 \section{Best Candidate}
 \label{s:best}
 
-TODO
+A very candidate for locomotion tasks seems to be TD-MPC2 \cite{Hansen2024-ld}
+(the \emph{why} was discussed earlier).
+
+There might be interesting considerations in
+``Temporal Cycle-Consistency Learning'' (TCC) \cite{Dwibedi2019-jv}.
+
+Here are some references of \emph{motion capture} (MoCap) use in control:
+\cite{Merel2017-lo, Merel2019-rn, Merel2020-ea, La_Barbera2021-kq, Fussell2021-uf, Bohez2022-jt,
+Liu2022-lw, Winkler2022-nr, Sun2023-bl, Radosavovic2024-xl}
 
 \begin{comment}
-====extra things====
-S4 etc.
-
-TD-MPC2 >> DreamerV3 for continuous control (DreamerV3 better for discrete control,
-    although allegedly worse now than IRIS, Diamond, TWM, etc.)
-this requires to learn a world model, to then plan on
-
-MoCap
-Temporal Cycle-Consistency Learning (TCC)
-in-context learning (in-context RL --ICRL)
+check previous note
 \end{comment}
 
 % References
