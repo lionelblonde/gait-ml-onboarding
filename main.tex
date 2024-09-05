@@ -305,14 +305,19 @@ This is because such a model can then act as a substitute for the real environme
 In that case, the interaction needs are lowered, and the method is more sample efficient
 (technically). This category of MBRL approaches (replacing the environment with a learned one)
 was introduced by Sutton with Dyna \cite{Sutton1991-cp}.
+As such, we will use the adjective ``Dyna-style'' to refer to this family of methods.
+MVE \cite{Feinberg2018-tv} extends Dyna, and
+STEVE \cite{Buckman2018-jd} extends MVE.
+In the same vein, MBPO \cite{Janner2019-sk} is closely related to MVE and STEVE.
 
-In addition to ``Dyna-style'' methods, there are ``SVG-style'' methods, where SVG refers to the
-``Stochastic Value Gradients'' work \cite{Fairbank2012-rp, Heess2015-va, Amos2021-wd}.
+In addition to Dyna-style methods, there are ``SVG-style'' methods, where SVG refers to the
+``Stochastic Value Gradients'' work \cite{Heess2015-va}.
+SVG builds on ``Value Gradients'' \cite{Fairbank2012-rp},
+and has been revisited more recently in \cite{Amos2021-wd}.
 The origin of this approach could be traced back to the appearance of
 back-propagation-through-time (BPTT)
 \cite{Rumelhart1986-ls, Robinson1987-px, Nguyen1990-zx, Werbos1990-qa,
 Williams1990-xw, Jordan1992-wn, Grzeszczuk1998-ij}
-(other possible name: ``pathwise derivatives''.)
 It has then been continued in more modern setting by \cite{Schmidhuber2011-mt, Deisenroth2011-ya}, 
 and very recently in the very successful DreamerV\{1-3\} methods
 \cite{Hafner2019-oa, Hafner2021-td, Hafner2023-wk, Lin2023-ql}.
@@ -320,6 +325,13 @@ These methods learn a model of the world with neural networks so that the learne
 the world can be part of the episode-spanning computational graph created by the RL objective.
 Effectively, the gradient propagate backward through the trajectories, from the termination to
 the initialization.
+For how these methods operate, the family is sometimes said to use ``pathwise derivatives'',
+to backpropagate through paths.
+While SVG uses only paths built from real samples (actually collected in rollouts in simulation),
+the Model-Augmented Actor-Critic (MAAC) \cite{Clavera2020-ha}
+uses both real rollouts and model rollouts (generated from the learned model of the environment).
+Another method from that family is SuperTrack \cite{Fussell2021-uf}.
+The policy is not optimized via RL however, but with IL.
 
 The third approach to MBRL consists in learning a model of the world and deriving a
 policy by \emph{planning} on the model with a method like MPC (model-predictive control).
@@ -383,6 +395,12 @@ The diffsim designer has knowledge about the domain and knows how the design cho
 the interaction time (direct consequence of the integration from dynamics to kinematics).
 The designer can strike the desired trade-offs between fidelity with the real physics and speed.
 More sophisticated models can lead to higher fidelity, but are more costly to integrate over.
+
+Works that involve pathwise derivatives (SVG-style) in a diffsim include
+SHAC \cite{}, AHAC \cite{}, DiffMimic \cite{},
+PODS \cite{}, and ILD \cite{}.
+While all these are optimized with an RL objective, ILD is optimized with an IL one.
+Also, PODS requires second order information (about the Hessian) from the diffsim.
 
 Plus, diffsims are hard-coded and therefore less prone to \textit{model hacking} (also refered
 to as \textit{model exploitation} or \textit{model bias}).
@@ -560,15 +578,11 @@ There might be interesting considerations in
 ``Temporal Cycle-Consistency Learning'' (TCC) \cite{Dwibedi2019-jv}.
 
 Here are some references of \emph{motion capture} (MoCap) use in control:
-\cite{Merel2017-lo, Merel2019-rn, Merel2020-ea, La_Barbera2021-kq, Fussell2021-uf, Bohez2022-jt,
+\cite{Merel2017-lo, Merel2019-rn, Merel2020-ea, La_Barbera2021-kq, Bohez2022-jt,
 Liu2022-lw, Winkler2022-nr, Sun2023-bl, Radosavovic2024-xl}
 
-\begin{comment}
-check previous note
-\end{comment}
-
 % References
-\bibliographystyle{plain}
+\bibliographystyle{alpha}
 \bibliography{my_bib} % (without the .bib extension)
 
 \end{document}
