@@ -343,6 +343,10 @@ MPC-style methods use a learned \textit{termination value or critic}
 for the learned controller to always be able to gauge the long-term of its plans, as in
 TD-MPC2 \cite{Hansen2024-ld}.
 
+MPC is particularly appealing when the uncertainty of the model of the world is modeled,
+since the policy can then make good use of this information,
+as in PETS \cite{Chua2018-fn} and POPLIN \cite{Wang2020-jd}.
+
 For the three ways of conducting MBRL (Dyna-style, SVG-style, MPC-style),
 it is common to learn models that do not follow the strict signatures of the MDP elements.
 Instead, a more complex model is often learned, the forward model is derived from it if needed.
@@ -396,20 +400,24 @@ the interaction time (direct consequence of the integration from dynamics to kin
 The designer can strike the desired trade-offs between fidelity with the real physics and speed.
 More sophisticated models can lead to higher fidelity, but are more costly to integrate over.
 
-Works that involve pathwise derivatives (SVG-style) in a diffsim include
-SHAC \cite{}, AHAC \cite{}, DiffMimic \cite{},
-PODS \cite{}, and ILD \cite{}.
+Works that involve pathwise derivatives in a diffsim include
+SHAC \cite{Xu2022-bz}, AHAC \cite{Georgiev2024-rs}, DiffMimic \cite{Ren2023-yc},
+PODS \cite{Mora2021-pp}, and ILD \cite{Chen2022-zd}.
 While all these are optimized with an RL objective, ILD is optimized with an IL one.
 Also, PODS requires second order information (about the Hessian) from the diffsim.
 
 Plus, diffsims are hard-coded and therefore less prone to \textit{model hacking} (also refered
-to as \textit{model exploitation} or \textit{model bias}).
+to as \textit{model exploitation} \cite{Ross2012-yj}
+or \textit{model bias} in PILCO \cite{Deisenroth2011-ya}).
 This phenomenon is observed when the policy uses the model of the world in ways that were
 unintended by the practitioner. It \textit{hacks} or \text{exploits} the model to solve the task
-it was asked to solve, but did it in unforeseen ways at test time
-\cite{Ross2012-yj}.
-This is typical when dealing with black boxes.
+it was asked to solve, but did it in unforeseen ways at test time.
+Model bias is mentioned in SVG \cite{Heess2015-va}, ME-TRPO \cite{Kurutach2018-lw},
+PIPPS \cite{Parmas2018-se}, and the authors of MBPO \cite{Janner2019-sk} write that
+``errors in model can undermine the advantage from model-based data augmentation''.
+This is typical when dealing with black boxes like neural nets.
 The phenomenon is close in spirit to reward hacking.
+Note, model bias is a hurdle for all three families of model-based methods.
 It is easier to correct in diffsims simply because, since the simulator is hard-coded and readable,
 we can \textit{know} what was exploited. This part of the pipeline is a white box.
 Model exploitation loopholes are especially critical to avoid in SVG-style methods since
@@ -426,11 +434,14 @@ backward through long trajectories, the reward itself need be a differentiable s
 with respect to the quantities of interest, which is not necessarily obvious.
 In the case of IL however, the displacement error need only the dynamics to be differentiable.
 Lastly, since diffsims are tedious to engineer, using them is often an exercise in patience.
+
 Here are relevant references on diffsims:
 \cite{Degrave2016-vr, Hu2019-ax, Falisse2019-ge, Hu2020-eb, Qiao2020-um, Gradu2020-kq,
 Geilinger2020-ar, Mora2021-pp, Heiden2021-fb, Clarke2021-rr, Werling2021-da, Qiao2021-zn,
 Huang2021-le, Heiden2021-ey, Grinsztajn2021-mr, Daniel_Freeman2021-az, Lin2022-jr, Xu2022-bz,
 Suh2022-mn, Allen2022-vc, Chen2022-zd, Ren2023-yc, Georgiev2024-rs}.
+These range from the introduction of new simulators, to analyses of gradients types
+(zero-th versus first order gradients), to new ways to leverage diffsims to a fuller extent.
 
 \subsection{Execution Speed}
 \label{ss:speed}
