@@ -415,15 +415,36 @@ Suh2022-mn, Allen2022-vc, Chen2022-zd, Ren2023-yc, Georgiev2024-rs}.
 \subsection{Execution Speed}
 \label{ss:speed}
 
-TODO
+This section is meant to contain items justifying the need for high execution speed if one wants
+to close the sim-to-real gap in a reasonable amount of time (for RL standards).
+
+In 2019, the OpenAI robotics team ---now defunct--- leveraged a techique that led
+them to train a dextrous robotic hand \footnote{The ``Shadow Dexterous Hand'', from
+\url{https://www.shadowrobot.com/dexterous-hand-series/}}
+to solve the Rubik's cube puzzle \cite{OpenAI2019-vy}.
+The endeavor consisted in first \textit{solving} the dextrous in-hand manipulation of the cube,
+which was reported in \cite{OpenAI2018-sm}, before integrating an off-the-shelf Rubik's cube
+solver into the system (engineering feat on its own).
+In order to solve the dextrous in-hand manipulation task, the engineers at OpenAI used a
+technique called \emph{domain randomization} (DR), originating in works such as
+\cite{Tobin2017-ir, Tan2018-ux}.
+The technique is akin to the data augmentations carried out in self-supervised learning
+but these augmentations are done at the rendering engine level. The engineers developed a
+system that allows fast and customizable rendering of robotics environments. They called the
+system the OpenAI Remote Rendering Backend (ORRB) \cite{Chociej2019-ot}.
+In short, the system allows for the randomization of various aspects of the rendered robotic
+hand and objects in simulation (variety of textures, colors, etc.).
+Domain randomization very useful to be able to communicate to the agent what is relevant and what
+is not. By seeing a variety of textures and colors that do not change the task in nature, we
+want the model to understand what it should be \emph{invariant} to.
+From this diversity comes robustness with respect to the unknowns of the real world.
+
+So, if one want to close the gap, showing lots of things to the agent is crucial
+--- \textit{e.g.} via DR, and for that to be feasible, we need fast simulation engine backends.
+
 
 \begin{comment}
-domain randomization very useful to be able to communicate to the agent what is relevant and what
-    is not; by seeing a variety of textures and colors that do not change the task in nature, we
-    want the model to understand what it should be invariant to (cf. literature on self-supervised
     learning)
-    SO, if one want to close the gap, showing lots of things to the agent is crucial, and for that
-    to be feasible, the sim need be fast
 
 problem of character animation in rendering engine is almost identical
     an advantage they have is that game engines do not car as much about contacts being sharp
