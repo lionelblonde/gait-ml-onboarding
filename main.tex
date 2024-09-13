@@ -225,7 +225,7 @@ their ability to propagate information in time across timesteps.
 It does so by compressing previous information seen in the trajectory (accumulating over time)
 into a fixed size hidden state.
 
-Mainstream attention has moved onto a different architecture,
+Mainstream attention has moved onto a different architecture called
 the Transformer \cite{Vaswani2017-lk},
 which splits sequences in tokens from a fixed vocabulary,
 and learning how to build sequences by trying to predict the next token given all the previous
@@ -435,7 +435,7 @@ with respect to the quantities of interest, which is not necessarily obvious.
 In the case of IL however, the displacement error need only the dynamics to be differentiable.
 Lastly, since diffsims are tedious to engineer, using them is often an exercise in patience.
 
-Here are relevant references on diffsims:
+Some relevant references on diffsims:
 \cite{Degrave2016-vr, Hu2019-ax, Falisse2019-ge, Hu2020-eb, Qiao2020-um, Gradu2020-kq,
 Geilinger2020-ar, Mora2021-pp, Heiden2021-fb, Clarke2021-rr, Werling2021-da, Qiao2021-zn,
 Huang2021-le, Heiden2021-ey, Grinsztajn2021-mr, Daniel_Freeman2021-az, Lin2022-jr, Xu2022-bz,
@@ -579,14 +579,130 @@ To conclude:
 \emph{Both MJX and Brax (diffsim) are active and led by Google, but are written in JAX.
 Isaac Gym and \texttt{dflex} (diffsim) are inactive and led by Nvidia, but they are in PyTorch.}
 
+\section{NeurIPS Competitions: Learning to Walk}
+
+\subsection{From 2017 to 2024}
+
+\subsubsection{NeurIPS 2017: Learning to Walk}
+
+\begin{itemize}
+    \item \textbf{Objective}: Train a bipedal agent to walk as far as possible in a simulated
+        environment using reinforcement learning.
+    \item \textbf{Challenges}: Realistic walking behaviors in a physics-based MuJoCo simulation.
+    \item \textbf{Musculo-skeletal Models}: \textbf{No} – The simulation involved direct control
+        of joints (torques) rather than muscles.
+    \item \textbf{Outcome}: Highlighted the need for efficient policy learning in basic locomotion
+        tasks.
+\end{itemize}
+
+\subsubsection{NeurIPS 2018: AI for Prosthetics}
+
+\begin{itemize}
+    \item \textbf{Objective}: Control a prosthetic leg to enable walking for a human model with a
+        simulated amputation using \textbf{OpenSim}.
+    \item \textbf{Challenges}: Human-prosthetic interaction, simulating biomechanics of both the
+        prosthetic and remaining leg.
+    \item \textbf{Musculo-skeletal Models}: \textbf{Yes} – The simulation used musculo-skeletal
+        models with muscle-based controls, making it more realistic in mimicking human gait.
+    \item \textbf{Outcome}: Showed the importance of biomechanical realism in prosthetic
+        simulations.
+\end{itemize}
+
+\subsubsection{NeurIPS 2019: Learn to Move – Walk Around}
+
+\begin{itemize}
+    \item \textbf{Objective}: Agents had to walk and run in a complex 3D environment using
+        \textbf{OpenSim}, with adaptive movement across various terrains.
+    \item \textbf{Challenges}: Terrain complexity, requiring stability and adaptability.
+    \item \textbf{Musculo-skeletal Models}: \textbf{Yes} – OpenSim's musculo-skeletal models with
+        muscle-based controls were used, making the agent control more human-like.
+    \item \textbf{Outcome}: Advanced the ability to generalize movement behaviors across different
+        environments with more complex biomechanical models.
+\end{itemize}
+
+\subsubsection{NeurIPS 2020: Learn to Move – Adaptive Arm}
+
+\begin{itemize}
+    \item \textbf{Objective}: Focused on upper-limb control and object manipulation using a
+        simulated arm.
+    \item \textbf{Challenges}: Adapting to changing goals and constraints in fine motor control.
+    \item \textbf{Musculo-skeletal Models}: \textbf{Yes} – The competition used musculo-skeletal
+        modeling for the arm, controlling muscles rather than direct torques.
+    \item \textbf{Outcome}: Expanded RL applications to include fine motor skills, emphasizing
+        musculo-skeletal dynamics.
+\end{itemize}
+
+\subsubsection{NeurIPS 2021: The Walkers}
+
+\begin{itemize}
+    \item \textbf{Objective}: Control four-legged walkers across challenging terrains.
+    \item \textbf{Challenges}: Handling uneven terrain, slopes, and moving obstacles.
+    \item \textbf{Musculo-skeletal Models}: \textbf{No} – The simulation used joint-based controls
+        (torques) rather than muscle-based controls.
+    \item \textbf{Outcome}: Focused on the adaptability of RL agents to dynamic terrains and
+        obstacles without introducing musculo-skeletal complexity.
+\end{itemize}
+
+\subsubsection{NeurIPS 2022: The Walkers – Humanoids}
+
+\begin{itemize}
+    \item \textbf{Objective}: Agents had to control humanoid walkers, adding complexity due to the
+        high-dimensionality of the humanoid model.
+    \item \textbf{Challenges}: Stability and balance of a humanoid across complex terrains.
+    \item \textbf{Musculo-skeletal Models}: \textbf{No} – The controls were based on joint torques,
+        not muscle-based controls.
+    \item \textbf{Outcome}: Explored advanced techniques like \textit{hierarchical RL} and
+        \textit{imitation learning} for humanoid locomotion, but without musculo-skeletal models.
+\end{itemize}
+
+\subsubsection{NeurIPS 2023: Robust Locomotion}
+
+\begin{itemize}
+    \item \textbf{Objective}: Develop controllers for robust locomotion across various terrains and
+        dynamic conditions.
+    \item \textbf{Challenges}: Emphasis on robust performance in unseen environments.
+    \item \textbf{Musculo-skeletal Models}: \textbf{No} – The simulation focused on controlling
+        joint torques rather than muscles.
+    \item \textbf{Outcome}: Leveraged \textit{domain randomization} and
+        \textit{adversarial training} to improve the generalization of locomotion controllers,
+        but without muscle-based models.
+\end{itemize}
+
+\subsubsection{NeurIPS 2024: Physiological Dexterity and Agility in Bionic Humans}
+
+\begin{itemize}
+    \item \textbf{Objective}: This challenge, called the MyoChallenge\footnote{%
+        \url{https://sites.google.com/view/myosuite/myochallenge/myochallenge-2024}},
+        focuses on creating controllers for musculo-skeletal systems in bionic human models.
+        The goal is to push the limits of physiological dexterity and agility by simulating fine
+        motor control and robust, dynamic movements.
+    \item \textbf{Challenges}: 
+    \begin{itemize}
+        \item Controlling complex musculo-skeletal systems, including simulating physiological
+            responses.
+        \item Achieving robust dexterity and agility in both upper- and lower-limb tasks, with a
+            focus on dynamic and adaptive behaviors.
+    \end{itemize}
+    \item \textbf{Musculo-skeletal Models}: \textbf{Yes} – The challenge uses musculo-skeletal
+        models, with muscle-based controls allowing for physiological accuracy in movement.
+    \item \textbf{Outcome (Expected)}: This challenge will drive innovations in modeling
+        human-like movement and control, as well as in developing advanced bionic systems that
+        mimic human agility and dexterity.
+\end{itemize}
+
+\subsection{Key Summary of Musculo-skeletal Models}
+\begin{itemize}
+    \item \textbf{Included in}: 2018, 2019, 2020 (focused on prosthetics, adaptive walking, and
+        arm control, where simulating realistic muscle actions was crucial).
+    \item \textbf{Excluded in}: 2017, 2021, 2022, 2023 (focused more on joint-based or
+        torque control, particularly in robotic and humanoid walking challenges).
+\end{itemize}
+
 \section{Best Candidate}
 \label{s:best}
 
 A very candidate for locomotion tasks seems to be TD-MPC2 \cite{Hansen2024-ld}
 (the \emph{why} was discussed earlier).
-
-Very important biorobotics references:
-\cite{Hamner2010-lf, Falisse2019-wf, Falisse2019-ge, Song2020-ta, Werling2023-mg}.
 
 A very promising environment: LocoMuJoCo \cite{Al-Hafez2023-dn},
 which has domain randomization capabilities.
@@ -594,7 +710,7 @@ which has domain randomization capabilities.
 There might be interesting considerations in
 ``Temporal Cycle-Consistency Learning'' (TCC) \cite{Dwibedi2019-jv}.
 
-Here are some references of \emph{motion capture} (MoCap) use in control:
+Some references of \emph{motion capture} (MoCap):
 \cite{Merel2017-lo, Merel2019-rn, Merel2020-ea, La_Barbera2021-kq, Bohez2022-jt,
 Liu2022-lw, Winkler2022-nr, Sun2023-bl, Radosavovic2024-xl}
 
