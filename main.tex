@@ -580,6 +580,7 @@ To conclude:
 Isaac Gym and \texttt{dflex} (diffsim) are inactive and led by Nvidia, but they are in PyTorch.}
 
 \section{NeurIPS Competitions: Learning to Walk}
+\label{s:l2w}
 
 \subsection{From 2017 to 2024}
 
@@ -690,7 +691,7 @@ Isaac Gym and \texttt{dflex} (diffsim) are inactive and led by Nvidia, but they 
         mimic human agility and dexterity.
 \end{itemize}
 
-\subsection{Key Summary of Musculo-skeletal Models}
+\subsection{Summary \textit{vis-a-vis} Musculo-skeletal Models}
 \begin{itemize}
     \item \textbf{Included in}: 2018, 2019, 2020 (focused on prosthetics, adaptive walking, and
         arm control, where simulating realistic muscle actions was crucial).
@@ -698,7 +699,48 @@ Isaac Gym and \texttt{dflex} (diffsim) are inactive and led by Nvidia, but they 
         torque control, particularly in robotic and humanoid walking challenges).
 \end{itemize}
 
-\section{Best Candidate}
+\section{Concretely}
+
+I suggest the following (``H.'', ``J.'', and ``L.'' are Hugues, Joao, and Lionel respectively):
+\begin{enumerate}
+    \item H. presents his bioscience background in front of the whole team.
+    \item H. presents a taylored presentation about biomechanical models in front of
+        this project team only. The contents: Hill models, Raash models, Hunt-Crossley models,
+        Featherstone models, generalized coordinates, etc.
+    \item H. goes through all the "Learning to Walk" competitions listed out in \ref{s:l2w}
+        and walk us through what the winning teams did to get the first place. Podium contestants
+        with notable or out-of-the-ordinary approaches should be discussed well.
+    \item H. should get familiarize himself with running RL and IL experiments in the 
+        LocoMuJoCo \cite{Al-Hafez2023-dn} suite. At the same time, if timeline forces it, L./J.
+        will be conducting experiments to learn controllers in musculo-skeletal simulators.
+        If J. is actively working of diffsims without muscles, then L. will work on the
+        muscle-actuated simulations.
+    \item The role of L./J. is to assist H. as much as possible in being proficient in handling
+        simulators and understanding RL/IL methods --this assistance is hands-on, since it will
+        take time for H. to get accustomed to this new machinery. Still, someone at ease with
+        Python and biomechanics will likely progress fast, especially with our continued
+        assistance.
+    \item Concerning \textit{which complex simulators}, we will use:
+        \textit{(a)} MyoLeg, a MuJoCo model, used via the MyoSuite Python API, and
+        \textit{(b)} Hyfydy models used via the SCONE Python API.
+        Both are very fast, although not running on GPU. 
+    \item Whether diffsim and/or GPU simulations will be used in this project depends entirely on
+        the research interests and endeavors or H., J., and L. It is not really a item of primary
+        interest for the project \textit{per se}.
+    \item H. has some familiarity with PyTorch. L. and J. are proficienty in PyTorch.
+        There have nevertheless evidence that JAX has been instrumental in real-world 
+        RL use \emph{where PyTorch failed to deliver in terms of speed},
+        notatly in \cite{Smith2022-sm}.
+        L. will use JAX to revive a previous project that was suffering from long training times;
+        maybe that might be also a good occasion for H. to learn Jax\footnote{%
+        The models and simulators previously mentioned (Hyfydy, MuJoCo, etc.)
+        are outside the computational graph, and therefore agnostic \textit{w.r.t.}
+        deep learning automatic differentiation (AD) frameworks}.
+    \item In parallel, L. will be in communication with Eric Heiden from the NVIDIA \texttt{warp}
+        team to discuss various things related to their muscle-actuated locomotion diffsim.
+\end{enumerate}
+
+\section{Extras}
 \label{s:best}
 
 A very candidate for locomotion tasks seems to be TD-MPC2 \cite{Hansen2024-ld}
